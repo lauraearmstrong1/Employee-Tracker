@@ -133,3 +133,14 @@ You are required to submit the following:
 
 - - -
 © 2019 Trilogy Education Services, a 2U, Inc. brand. All Rights Reserved.
+
+
+
+
+
+Questions:
+What would you like to do? (add employee, remove emplyee, update employee role, update employee manager, view all roles, add role, remove role)
+
+What is the employee's first name?
+What is the employee's last name?
+What is the emplyee's role? (sales lead, salesperson, lead engineer, software engineer, account manager, accountant, legal team lead, lawyer)
