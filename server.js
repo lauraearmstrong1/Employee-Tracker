@@ -1,79 +1,122 @@
-const inquirer = require("inquirer");
-const path = require("path");
 var inquirer = require("inquirer");
+//const express = require("express");
+var mysql = require("mysql");
 
 var connection = mysql.createConnection({
-  host: "localhost",
+    host: "localhost",
 
-  // Your port; if not 3306
-  port: 3306,
+    // Your port; if not 3306
+    port: 3306,
 
-  // Your username
-  user: "root",
+    // Your username
+    user: "root",
 
-  // Your password
-  password: "Spencer11!",
-  database: "top_songsDB"
+    // Your password
+    password: "Spencer11!",
+    database: "employees_db"
 });
 
-connection.connect(function(err) {
-  if (err) throw err;
-  runSearch();
+connection.connect(function (err) {
+    if (err) throw err;
+    runSearch();
 });
 
 
 function makeDepartment() {
-    inquirer.prompt([
-        {
+    inquirer.prompt({
             type: "list",
             name: "typeOfChange",
             message: "What would you like to do?",
-            choices: [ 
-            "View All Employees",
-            "View All Employees by Department",
-            "View All Employees by Manager",
-            "Add Employee", "Remove Employee",
-            "Update Employee Role",
-            "Update Employee Manager",
-            "View All Roles",
-            "Add Role",
-            "Remove Role"]
-        },
-        {
-            type: "input",
-            name: "first_name",
-            message: "What is the employee's first name?"
-        },
-        {
-            type: "input",
-            name: "last_name",
-            message: "What is the employee's last name?"
-        },
-        {
-            type: "list",
-            name: "role",
-            message: "What is the employee's role?",
-            choices: ["Sales Lead", "Lawyer"]
-        },
-    ]).then(results => {
-        const newEngineer = new Engineer(results.name, results.id, results.email, results.username)
-        employeesArr.push(newEngineer)
-        makeTeam()
-    })
+            choices: [
+                "View All Employees",
+                "View All Employees by Department",
+                "View All Employees by Manager",
+                "Add Employee",
+                "Remove Employee",
+                "Update Employee Role",
+                "Update Employee Manager",
+                "View All Roles",
+                "Add Role",
+                "Remove Role"]
+        // {
+        //     type: "input",
+        //     name: "first_name",
+        //     message: "What is the employee's first name?"
+        // },
+        // {
+        //     type: "input",
+        //     name: "last_name",
+        //     message: "What is the employee's last name?"
+        // },
+        // {
+        //     type: "list",
+        //     name: "role",
+        //     message: "What is the employee's role?",
+        //     choices: ["Sales Lead", "Lawyer"]
+        // },
+    }).then(function (answer) {
+        switch (answer.action) {
+            case "View All Employees":
+                allEmployees();
+                break;
+
+            case "View All Employees by Department":
+                department();
+                break;
+
+            case "View All Employees by Manager":
+                manager();
+                break;
+
+            case "Add Employee":
+                addEmployee();
+                break;
+
+            case "Remove Employee":
+                removeEmployee();
+                break;
+
+            case "Update Employee Role":
+                updateRole();
+                break;
+
+            case "Update Employee Manager":
+                updateManager();
+                break;
+
+            case "View All Roles":
+                viewRoles();
+                break;
+
+            case "Add Role":
+                addRole();
+                break;
+
+            case "REmove Role":
+                removeRole();
+                break;
+
+            case "exit":
+                connection.end();
+                break;
+        }
+    });
 };
 
-        
-    // .then(selection => {
-    //     switch (selection.typeOfEmployee) {
-    //         case "View_All_Employees":
-    //           return  viewAllEmployees();
-    //         case "Intern":
-    //             makeIntern();
-    //             break;
-    //         default:
-    //             makeChart();
-    //     }
-    // })
+function allEmployees() {
+    var query = "SELECT department.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id";
+    query += "FROM employee INNER JOIN department INNER JOIN role ON employee.employee_id";
+
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+         console.log(query);
+
+        makeDepartment();
+
+    });
+};
 
 
-makeDepartment();
+
+
+//makeDepartment();
