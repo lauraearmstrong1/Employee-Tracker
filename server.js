@@ -38,22 +38,6 @@ function makeDepartment() {
                 "View All Roles",
                 "Add Role",
                 "Remove Role"]
-        // {
-        //     type: "input",
-        //     name: "first_name",
-        //     message: "What is the employee's first name?"
-        // },
-        // {
-        //     type: "input",
-        //     name: "last_name",
-        //     message: "What is the employee's last name?"
-        // },
-        // {
-        //     type: "list",
-        //     name: "role",
-        //     message: "What is the employee's role?",
-        //     choices: ["Sales Lead", "Lawyer"]
-        // },
     }).then(function (answer) {
         switch (answer.action) {
             case "View All Employees":
@@ -117,6 +101,74 @@ function allEmployees() {
 };
 
 
+
+function department() {
+
+}
+
+function manager() {
+
+}
+
+function addEmployee() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "first_name",
+            message: "What is the employee's first name?"
+        },
+        {
+            type: "input",
+            name: "last_name",
+            message: "What is the employee's last name?"
+        },
+        {
+            type: "list",
+            name: "role",
+            message: "What is the employee's role?",
+            choices: ["Sales Lead", "Lawyer"]
+        },
+    ]);
+    var query = "INSERT INTO employee SET ?", employee
+const employee =  new employee
+}
+//.map(({ id, first_name, last_name }) => ({
+//name: `${first_name} ${last_name}`
+
+//   connection.query(query, function (err, res) {
+//   })
+
+//         makeDepartment();
+
+//     });
+// }
+
+function removeEmployee() {
+
+}
+
+function updateRole() {
+
+}
+
+function updateManager() {
+
+}
+
+function viewRoles() {
+
+}
+
+function addRole() {
+
+}
+
+function removeRole() {
+
+}
+
+
+        
 
 
 //makeDepartment();
