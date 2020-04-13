@@ -18,28 +18,28 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
-    runSearch();
+    makeDepartment();
 });
 
 
 function makeDepartment() {
     inquirer.prompt({
-            type: "list",
-            name: "typeOfChange",
-            message: "What would you like to do?",
-            choices: [
-                "View All Employees",
-                "View All Employees by Department",
-                "View All Employees by Manager",
-                "Add Employee",
-                "Remove Employee",
-                "Update Employee Role",
-                "Update Employee Manager",
-                "View All Roles",
-                "Add Role",
-                "Remove Role"]
+        type: "list",
+        name: "typeOfChange",
+        message: "What would you like to do?",
+        choices: [
+            "View All Employees",
+            "View All Employees by Department",
+            "View All Employees by Manager",
+            "Add Employee",
+            "Remove Employee",
+            "Update Employee Role",
+            "Update Employee Manager",
+            "View All Roles",
+            "Add Role",
+            "Remove Role"]
     }).then(function (answer) {
-        switch (answer.action) {
+        switch (answer.typeOfChange) {
             case "View All Employees":
                 allEmployees();
                 break;
@@ -88,12 +88,13 @@ function makeDepartment() {
 };
 
 function allEmployees() {
-    var query = "SELECT department.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id";
-    query += "FROM employee INNER JOIN department INNER JOIN role ON employee.employee_id";
+    var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
 
     connection.query(query, function (err, res) {
         if (err) throw err;
-         console.log(query);
+
+        console.log('make it here')
+        console.table(res)
 
         makeDepartment();
 
@@ -111,26 +112,59 @@ function manager() {
 }
 
 function addEmployee() {
-    inquirer.prompt([
-        {
-            type: "input",
-            name: "first_name",
-            message: "What is the employee's first name?"
-        },
-        {
-            type: "input",
-            name: "last_name",
-            message: "What is the employee's last name?"
-        },
-        {
-            type: "list",
-            name: "role",
-            message: "What is the employee's role?",
-            choices: ["Sales Lead", "Lawyer"]
-        },
-    ]);
-    var query = "INSERT INTO employee SET ?", employee
-const employee =  new employee
+    var rolez
+    var managerz
+    connection.query("SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department on role.department_id = department.id; ",
+        (err, res) => {
+            if (err) throw err
+            rolez = res.map(({ id, title }) => ({
+                name: title,
+                value: id
+            }))
+
+            connection.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
+            (err, res)=>{
+                if(err) throw err
+                managerz = res.map(({id, first_name, last_name})=>({
+                    name: first_name+ " "+ last_name,
+                    value: id
+                }))
+            managerz.push ({name: "No Manager", value: null})
+            inquirer.prompt([
+                {
+                    type: "input",
+                    name: "first_name",
+                    message: "What is the employee's first name?"
+                },
+                {
+                    type: "input",
+                    name: "last_name",
+                    message: "What is the employee's last name?"
+                },
+                {
+                    type: "list",
+                    name: "role_id",
+                    message: "What is the employees role?",
+                    choices: rolez
+                },
+                {
+                    type: "list",
+                    name: "manager_id",
+                    message: "Who is the employees manager?",
+                    choices: managerz
+                },
+            ]).then(res => {
+               // console.log(res)
+                connection.query("INSERT INTO employee Set ?", res,
+                (err, res)=>{
+                    if(err) throw err
+                    console.log("Employee Added")
+                    makeDepartment();
+                })
+            })
+        })})
+    //var query = "INSERT INTO employee SET ?", employee
+
 }
 //.map(({ id, first_name, last_name }) => ({
 //name: `${first_name} ${last_name}`
@@ -168,7 +202,7 @@ function removeRole() {
 }
 
 
-        
+
 
 
 //makeDepartment();
