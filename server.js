@@ -227,8 +227,19 @@ function addDepartment() {
 
 function addRole() {
     var newRole
-    var dept_id
+    var dept_id = "SELECT department.name, department.id FROM department"
+    var updatedDept
     var query = "SELECT role.title, role.salary, role.department_id, department.name FROM role LEFT JOIN department ON department.id = role.department_id;"
+
+    connection.query(dept_id, function (err, res) {
+        if (err) throw err;
+        console.log(res);
+        updatedDept = res.map(({name, id}) => ({
+            name: name,
+            value:id
+        }))
+    })
+    
 
     connection.query(query, function (err, res) {
         if (err) throw err;
@@ -239,17 +250,7 @@ function addRole() {
             value: department_id
         }))
         newRole.push({ title: "", salary: "", department_id: "" })
-
-        // connection.query("SELECT role.title, role.salary, role.department_id FROM role LEFT JOIN department ON department.id = role.department_id;",
-        //     (err, res) => {
-        //         if (err) throw err
-        //         dept_id = res.map(({ department_id }) => ({
-        //             value: department_id
-        //         }))
-        //         dept_id.push({ department_id })
-        //         console.log("here")
                 
-
                 inquirer.prompt([
                     {
                         type: "input",
@@ -264,10 +265,8 @@ function addRole() {
                     {
                         type: "list",
                         name: "department_id",
-                        message: "What is the department for this role? Sales = 1, Engineering = 2, Finance = 3, Legal = 4",
-                        choices: [
-                        "1", "2", "3", "4"
-                    ]
+                        message: "What is the department for this role?",
+                        choices: updatedDept
                     }
                 ]).then(res => {
                     console.log(res)
@@ -284,7 +283,46 @@ function addRole() {
 
 
 function updateRole() {
+    var changeRole
+    var query = "SELECT employee.first_name, employee.last_name, role.title, department.id FROM employee LEFT JOIN role ON role.id = employee.role_id LEFT JOIN department ON role.department_id = department.id;"
 
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+
+        changeRole = res.map(({ title }) => ({
+            name: title
+        }))
+        changeRole.push({ name: "" })
+
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "name",
+                message: "Who is the employee?",
+                choices: [
+                    //CONCAT(employee.first_name + " " + employee.last_name)
+                ]
+            },
+
+            {
+                type: "list",
+                name: "name",
+                message: "What is the employee's new role?",
+                choices: [
+                    //role.title
+                ]
+            } 
+        ]).then(res => {
+            console.log(res)
+            connection.query("INSERT INTO role Set ?", res,
+                (err, res) => {
+                    if (err) throw err
+                    console.log("Role Updated")
+                    makeDepartment();
+                })
+        })
+    })
 }
+
 
 
