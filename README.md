@@ -13,3 +13,7 @@
 ## Dependencies
 
 Dependencies include express, inquirer, and mysql 
+
+## Image of Command line
+
+![Image of command line](assets/img.JPG)
