@@ -113,7 +113,7 @@ function viewEmployees() {
 };
 
 function viewRoles() {
-    var query = "SELECT role.title AS roles, role.department_id, department.name FROM role LEFT JOIN department ON department.id = role.department_id;"
+    var query = "SELECT role.title AS role, role.department_id, department.name AS department FROM role LEFT JOIN department ON department.id = role.department_id;"
 
     connection.query(query, function (err, res) {
         if (err) throw err;
@@ -234,12 +234,12 @@ function addRole() {
     connection.query(dept_id, function (err, res) {
         if (err) throw err;
         console.log(res);
-        updatedDept = res.map(({name, id}) => ({
+        updatedDept = res.map(({ name, id }) => ({
             name: name,
-            value:id
+            value: id
         }))
     })
-    
+
 
     connection.query(query, function (err, res) {
         if (err) throw err;
@@ -250,71 +250,90 @@ function addRole() {
             value: department_id
         }))
         newRole.push({ title: "", salary: "", department_id: "" })
-                
-                inquirer.prompt([
-                    {
-                        type: "input",
-                        name: "title",
-                        message: "What is the name of the new role?"
-                    },
-                    {
-                        type: "input",
-                        name: "salary",
-                        message: "What is the salary for this role?"
-                    },
-                    {
-                        type: "list",
-                        name: "department_id",
-                        message: "What is the department for this role?",
-                        choices: updatedDept
-                    }
-                ]).then(res => {
-                    console.log(res)
-                    connection.query("INSERT INTO role Set ?", res,
-                        (err, res) => {
-                            if (err) throw err
-                            console.log("Role Added")
-                            makeDepartment();
-                        })
+
+
+
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "title",
+                message: "What is the name of the new role?"
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the salary for this role?"
+            },
+            {
+                type: "list",
+                name: "department_id",
+                message: "What is the department for this role?",
+                choices: updatedDept
+            }
+        ]).then(res => {
+            console.log(res)
+            connection.query("INSERT INTO role Set ?", res,
+                (err, res) => {
+                    if (err) throw err
+                    console.log("Role Added")
+                    makeDepartment();
                 })
-            })
-   // })
+        })
+    })
+    // })
 }
 
 
 function updateRole() {
     var changeRole
+    var employee = "SELECT employee.role_id, CONCAT(employee.first_name, ' ', employee.last_name) AS fullName FROM employee"
+    var empName
+    var role = "SELECT role.title, role.id FROM role"
+    var newRole
     var query = "SELECT employee.first_name, employee.last_name, role.title, department.id FROM employee LEFT JOIN role ON role.id = employee.role_id LEFT JOIN department ON role.department_id = department.id;"
 
-    connection.query(query, function (err, res) {
-        if (err) throw err;
+        connection.query(employee, function (err, res) {
+            if (err) throw err;
+            console.log(res);
+            empName = res.map(({ fullName, role_id }) => ({
+                name: fullName,
+                value: role_id
+            }))
+        })
 
-        changeRole = res.map(({ title }) => ({
-            name: title
-        }))
-        changeRole.push({ name: "" })
+        connection.query(role, function (err, res) {
+            if (err) throw err;
+            newRole = res.map(({ title, id }) => ({
+                name: title,
+                value: id
+            }))
+        })
+
+        connection.query(query, function (err, res) {
+            if (err) throw err;
+            changeRole = res.map(({ fullName, role_id }) => ({
+                name: fullName,
+                value: role_id
+            }))
+            changeRole.push({ fullName: "", role_id: "" })
 
         inquirer.prompt([
             {
                 type: "list",
                 name: "name",
                 message: "Who is the employee?",
-                choices: [
-                    //CONCAT(employee.first_name + " " + employee.last_name)
-                ]
-            },
+                choices: empName
 
+            },
             {
                 type: "list",
-                name: "name",
+                name: "role_id",
                 message: "What is the employee's new role?",
-                choices: [
-                    //role.title
-                ]
-            } 
+                choices: newRole
+            }
         ]).then(res => {
             console.log(res)
-            connection.query("INSERT INTO role Set ?", res,
+            connection.query("UPDATE employee SET role_id = ? WHERE id=?", [res.role_id, res.name],
                 (err, res) => {
                     if (err) throw err
                     console.log("Role Updated")
